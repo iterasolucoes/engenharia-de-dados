@@ -19,7 +19,7 @@ bucketname = 'minicurso-engenharia-de-dados'
 def upload_file(data, folder_path, filename):
     path = f'{folder_path}/{filename}'
 
-    if filename.endswith('json'):
+    if path.endswith('json'):
         data = json.dumps(data, ensure_ascii=False)
     else:
         data = data.encode('utf8')

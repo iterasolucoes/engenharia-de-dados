@@ -1,6 +1,7 @@
 import requests
 import json
 import s3_handler
+import random
 
 
 url_deputados = 'https://dadosabertos.camara.leg.br/api/v2/deputados'
@@ -10,7 +11,8 @@ def get_deputados():
     
     if response.status_code == 200:
         obj = json.loads(response.text)
-        [get_detalhe_deputado(deputado['id']) for deputado in obj['dados']]
+        random.shuffle(obj['dados'])
+        [get_detalhe_deputado(deputado['id']) for deputado in obj['dados'][:100]]
 
 def get_detalhe_deputado(deputado_id):
     url = f'{url_deputados}/{deputado_id}'

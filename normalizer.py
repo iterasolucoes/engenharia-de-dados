@@ -1,31 +1,44 @@
 import json
-import boto3
 import s3_handler
 from unidecode import unidecode
+from pyspark import SparkContext
 
+sc = SparkContext("local[*]", "Normalizer")
+
+def get_filename(key):
+    splited = key.split('/')
+    return splited[len(splited) - 1]
 
 def normalize(v):
     return unidecode(v.lower())
 
-def extract_values(obj, aux=''):
-    normalized_obj = obj.copy()
-
-    for k, v in obj.items():
-        if isinstance(v, dict):
-            normalized_obj[k] = extract_values(v, k)
-        else:
-            if isinstance(v, str):
-                v = normalize(v)
-                normalized_obj[k + '_normalized'] = v
-
-    return normalized_obj
-
-documents = s3_handler.list_files('00/deputados')
-
-for doc in documents['Contents']:
+def normalize_deputados(doc):
+    print(doc['Key'])
     content = s3_handler.get_file(doc['Key'])
     obj = json.loads(content)
-    
-    obj = extract_values(obj)
-    print(json.dumps(obj, ensure_ascii=False))
-    break
+
+    obj['nomeCivil_normalized'] = normalize(obj['nomeCivil'])
+    obj['ultimoStatus']['nome_normalized'] = normalize(obj['ultimoStatus']['nome'])
+    obj['ultimoStatus']['siglaPartido_normalized'] = normalize(obj['ultimoStatus']['siglaPartido'])
+
+    filename = get_filename(doc['Key'])
+    s3_handler.upload_file(obj, '00/dadosabertos-camara-deputados', filename)
+
+def normalize_news(doc):
+    print(doc['Key'])
+    content = json.dumps(s3_handler.get_file(doc['Key']))
+    obj = json.loads(json.loads(json.loads(content)))
+    obj['news']['body_normalized'] = normalize(obj['news']['body'])
+
+    filename = get_filename(doc['Key'])
+    s3_handler.upload_file(obj, '00/camara-news/json', filename)
+
+deputados_file_list = s3_handler.list_files('00/dadosabertos-camara-deputados')
+news_file_list = s3_handler.list_files('00/camara-news/json')
+
+rdd_deputados = sc.parallelize(deputados_file_list['Contents'])
+rdd_news = sc.parallelize(news_file_list['Contents'])
+
+
+rdd_deputados.map(lambda doc: normalize_deputados(doc)).collect()
+#rdd_news.map(lambda doc: normalize_news(doc)).collect()

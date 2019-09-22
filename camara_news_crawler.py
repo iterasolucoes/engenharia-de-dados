@@ -28,12 +28,12 @@ def get_news(link: str) -> None:
     s3_handler.upload_file(content.text, '00/camara-news/html', filename+'.html')
 
 
-def recursively(i):
-    links = get_news_link(i)
-    print(i)
-    if len(links) > 0:
+def recursively(page_num):
+    links = get_news_link(page_num)
+    print(page_num)
+    if len(links) > 0 or page_num < 101:
         [get_news(link) for link in links]
-        recursively(i+1)
+        recursively(page_num+1)
 
 
 recursively(1)
