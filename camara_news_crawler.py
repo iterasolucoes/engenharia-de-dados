@@ -25,7 +25,7 @@ def get_news(link: str) -> None:
     filename = link.split(
         '/')[-2] if link.endswith('/') else link.split('/')[-1]
 
-    s3_handler.upload_file(content.text, 'teste', filename+'.html')
+    s3_handler.upload_file(content.text, '00/camara-news/html', filename+'.html')
 
 
 def recursively(i):
