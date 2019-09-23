@@ -26,8 +26,8 @@ def normalize_deputados(doc):
 
 def normalize_news(doc):
     print(doc['Key'])
-    content = json.dumps(s3_handler.get_file(doc['Key']))
-    obj = json.loads(json.loads(json.loads(content)))
+    content = s3_handler.get_file(doc['Key'])
+    obj = json.loads(content)
     obj['news']['body_normalized'] = normalize(obj['news']['body'])
 
     filename = get_filename(doc['Key'])
@@ -41,4 +41,4 @@ rdd_news = sc.parallelize(news_file_list['Contents'])
 
 
 rdd_deputados.map(lambda doc: normalize_deputados(doc)).collect()
-#rdd_news.map(lambda doc: normalize_news(doc)).collect()
+rdd_news.map(lambda doc: normalize_news(doc)).collect()
