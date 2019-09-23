@@ -4,7 +4,7 @@ import json
 from mongo_handler import MongoHandler
 
 
-sc = SparkContext("local[*]", "Normalizer")
+sc = SparkContext("local[*]", "Aggregator")
 mongo = MongoHandler('localhost', 27017, 'camara')
 
 def get_files():
