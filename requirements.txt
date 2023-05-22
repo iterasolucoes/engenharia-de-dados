@@ -1,4 +1,4 @@
-requests==2.21.0
+requests==2.31.0
 boto3==1.9.128
 Flask==1.0
 pyspark==2.4.4
